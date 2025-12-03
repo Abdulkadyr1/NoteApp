@@ -19,4 +19,13 @@ class NoteRepositoryImpl(
     override fun deleteNote(note: Note) {
         itemList.remove(note)
     }
+
+    override fun updateNote(note: Note) {
+        itemList.forEachIndexed { index, it ->
+            if (it.id == note.id){
+                itemList[index] = note
+                return
+            }
+        }
+    }
 }

@@ -6,4 +6,6 @@ data class UiNoteState(
     val noteList: List<Note> = emptyList(),
     val titleInput: String = "",
     val contentInput: String = "",
+    val isUpdating: Long? = null,
+    val btnText: String = "Добавить",
 )

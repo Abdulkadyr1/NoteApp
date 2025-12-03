@@ -18,13 +18,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -82,7 +77,7 @@ fun NoteScreen(viewModel: NoteViewModel){
             onClick = {
             viewModel.onAddNote()
         }) {
-            Text("Добавить")
+            Text(text = state.btnText)
         }
 
         Text("Список заметок:", fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -92,12 +87,15 @@ fun NoteScreen(viewModel: NoteViewModel){
         ){
             items(
                 items = state.noteList,
-                key = {note -> note.id}
+                key = { it.id }
             ){ note ->
                 Card(
                     modifier = Modifier.padding(5.dp)
                 ) {
-                    NoteItem(note = note, deleteNote = { viewModel.deleteNote(note = note) })
+                    NoteItem(note = note,
+                        deleteNote = { viewModel.deleteNote(note = note) },
+                        onEdit = {viewModel.startEdit(note = note)},
+                        onBtn = {viewModel.onUpdateChange()})
                 }
             }
         }
@@ -105,7 +103,10 @@ fun NoteScreen(viewModel: NoteViewModel){
 }
 
 @Composable
-fun NoteItem(note: Note, deleteNote: (Note) -> Unit){
+fun NoteItem(note: Note,
+             deleteNote: (Note) -> Unit,
+             onEdit: (Note) -> Unit,
+             onBtn: () -> Unit){
     Column(
         modifier = Modifier
             .padding(5.dp)
@@ -119,6 +120,15 @@ fun NoteItem(note: Note, deleteNote: (Note) -> Unit){
             }
         ) {
             Text("Удалить заметку")
+        }
+
+        Button(
+            onClick = {
+                onEdit(note)
+                onBtn()
+            }
+        ) {
+            Text("Редактировать заметку")
         }
     }
 }
