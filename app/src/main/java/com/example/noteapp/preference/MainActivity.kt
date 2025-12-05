@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -20,6 +22,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,41 +65,76 @@ class MainActivity : ComponentActivity() {
 fun NoteScreen(viewModel: NoteViewModel){
     val state = viewModel.uiState
 
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .fillMaxSize()
     ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
 
-        TextField(value = state.titleInput, onValueChange = { viewModel.onTitleChange(it) })
-        TextField(value = state.contentInput, onValueChange = { viewModel.onContentChange(it) })
 
-        Button(
-            modifier = Modifier.padding(bottom = 10.dp, top = 5.dp),
+            Text("Заметки", fontSize = 40.sp, fontWeight = FontWeight.Bold)
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(
+                    items = state.noteList,
+                    key = { it.id }
+                ) { note ->
+                    Card(
+                        modifier = Modifier.padding(5.dp)
+                    ) {
+                        NoteItem(
+                            note = note,
+                            deleteNote = { viewModel.deleteNote(note = note) },
+                            onEdit = { viewModel.startEdit(note = note) }
+                        )
+                    }
+                }
+            }
+        }
+        androidx.compose.material3.FloatingActionButton(
+            modifier = Modifier
+                .align (Alignment.BottomEnd)
+                .padding(bottom = 35.dp, end = 15.dp),
             onClick = {
-            viewModel.onAddNote()
-        }) {
-            Text(text = state.btnText)
+                viewModel.showAddNote()
+            }) {
+            Text("+")
         }
 
-        Text("Список заметок:", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
-            items(
-                items = state.noteList,
-                key = { it.id }
-            ){ note ->
-                Card(
-                    modifier = Modifier.padding(5.dp)
-                ) {
-                    NoteItem(note = note,
-                        deleteNote = { viewModel.deleteNote(note = note) },
-                        onEdit = {viewModel.startEdit(note = note)},
-                        onBtn = {viewModel.onUpdateChange()})
-                }
+        if (state.isAddNote){
+            showAddNoteUi(state, viewModel)
+        }
+
+    }
+}
+@Composable
+fun showAddNoteUi(state: UiNoteState,
+                  viewModel: NoteViewModel){
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Red)
+    ){
+        Column(
+            modifier = Modifier.fillMaxSize().padding(15.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            TextField(value = state.titleInput, onValueChange = { viewModel.onTitleChange(it) }, Modifier.padding(bottom = 20.dp))
+            TextField(value = state.contentInput, onValueChange = { viewModel.onContentChange(it) })
+            Button(
+//                modifier = Modifier
+                onClick = {
+                    viewModel.onAddNote()
+                }) {
+                Text("Сохранить")
             }
         }
     }
@@ -105,8 +143,7 @@ fun NoteScreen(viewModel: NoteViewModel){
 @Composable
 fun NoteItem(note: Note,
              deleteNote: (Note) -> Unit,
-             onEdit: (Note) -> Unit,
-             onBtn: () -> Unit){
+             onEdit: (Note) -> Unit,){
     Column(
         modifier = Modifier
             .padding(5.dp)
@@ -125,10 +162,10 @@ fun NoteItem(note: Note,
         Button(
             onClick = {
                 onEdit(note)
-                onBtn()
             }
         ) {
             Text("Редактировать заметку")
         }
     }
 }
+

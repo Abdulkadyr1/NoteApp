@@ -7,5 +7,5 @@ data class UiNoteState(
     val titleInput: String = "",
     val contentInput: String = "",
     val isUpdating: Long? = null,
-    val btnText: String = "Добавить",
+    val isAddNote: Boolean = false,
 )

@@ -32,10 +32,6 @@ class NoteViewModel(
         uiState = uiState.copy(contentInput = newValue)
     }
 
-    fun onUpdateChange(){
-        uiState = uiState.copy(btnText = "Сохранить")
-    }
-
     fun deleteNote(note: Note){
         noteRepo.deleteNote(note)
         loadNotes()
@@ -46,6 +42,12 @@ class NoteViewModel(
             isUpdating = note.id,
             titleInput = note.title,
             contentInput = note.content,
+        )
+    }
+
+    fun showAddNote(){
+        uiState = uiState.copy(
+            isAddNote = true
         )
     }
 
@@ -79,7 +81,7 @@ class NoteViewModel(
             titleInput = "",
             contentInput = "",
             isUpdating = null,
-            btnText = "Добавить",
+            isAddNote = false
         )
 
     }
